@@ -1,5 +1,6 @@
 import { Component, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { ApiService } from '../services/api.service';
+import { OllamaService } from '../services/ollama.service';
 interface Message {
   text: string;
   sender: 'user' | 'ai';
@@ -19,7 +20,11 @@ export class ChatComponent {
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
-  constructor(private ngZone: NgZone, private apiService: ApiService) {}
+  constructor(
+    private ngZone: NgZone,
+    private apiService: ApiService,
+    private ollamaService: OllamaService
+  ) {}
   // 调用后端 GET API
   fetchData(): void {
     this.apiService.getExampleData().subscribe({
@@ -53,16 +58,18 @@ export class ChatComponent {
     this.messages.push({ text: userMessage, sender: 'user' });
     this.userInput = '';
 
-    // 模拟 AI 响应
-    setTimeout(() => {
-      this.ngZone.run(() => {
-        this.messages.push({
-          text: `AI: You said "${userMessage}"`,
-          sender: 'ai',
+    this.ollamaService.generate('llama3', userMessage).subscribe({
+      next: (res) => {
+        const aiText = res?.response || '';
+        this.ngZone.run(() => {
+          this.messages.push({ text: aiText, sender: 'ai' });
+          this.scrollToBottom();
         });
-        this.scrollToBottom();
-      });
-    }, 1000);
+      },
+      error: (error) => {
+        console.error('Error calling LLM:', error);
+      },
+    });
   }
 
   private scrollToBottom() {

@@ -10,6 +10,18 @@ To start a local development server, run:
 ng serve
 ```
 
+## OLLAMA Integration
+
+This project includes a simple service for interacting with an
+[OLLAMA](https://ollama.ai) LLM server. By default, the service expects the
+OLLAMA API to be available at `http://localhost:11434`. You can send chat
+messages and receive responses through the `OllamaService` used in the chat
+component.
+
+Before running the Angular application, ensure your OLLAMA server is up and
+running. You can change the base URL in `src/app/services/ollama.service.ts` if
+your setup differs.
+
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
 ## Code scaffolding
